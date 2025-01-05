@@ -88,6 +88,7 @@ class System_R(System):
     def __init__(self,
                  berry=False,
                  morb=False,
+                 mom=False,
                  spin=False,
                  SHCryoo=False,
                  SHCqiao=False,
@@ -120,6 +121,8 @@ class System_R(System):
             self.needed_R_matrices.update(['AA', 'SS', 'SR', 'SH', 'SHR'])
         if OSD:
             self.needed_R_matrices.update(['AA', 'BB', 'CC', 'GG', 'OO'])
+        if mom:
+            self.needed_R_matrices.add('MOM')
 
         if self.force_internal_terms_only:
             self.needed_R_matrices = self.needed_R_matrices.intersection(['Ham', 'SS'])
@@ -335,7 +338,7 @@ class System_R(System):
         if method == "new":
             assert spin_ordering == "interlace", "Symmetrization method 'new' is implemented only for spin_ordering='interlace'"
             from irrep.spacegroup import SpaceGroup
-            from ..symmetry.symmetrizer_sawf import SymmetrizerSAWF
+            from ..symmetry.sawf import SymmetrizerSAWF
             from ..wannierise.projections import Projection
 
             index = {key: i for i, key in enumerate(set(atom_name))}
@@ -612,6 +615,22 @@ class System_R(System):
                         for n in self.range_wann for m in self.range_wann
                     )
                 )
+        if self.has_R_mat('MOM'):
+            MOM = np.copy(self.get_R_mat('MOM'))
+
+            for iR in range(self.nRvec):
+                f.write("\n  {0:3d}  {1:3d}  {2:3d}\n".format(*tuple(self.iRvec[iR])))
+
+                _mom = MOM[:, :, iR, :] * Ndegen[iR]
+
+                for m in range(_mom.shape[0]):
+                    for n in range(_mom.shape[1]):
+                        f.write(f"{m + 1:3d} {n + 1:3d} ")
+                        for i in range(_mom.shape[2]):
+                            f.write(
+                                f"{_mom[m, n, i].real:15.8e} {_mom[m, n, i].imag:15.8e} "
+                            )
+                        f.write("\n")
         f.close()
 
     def _FFT_compatible(self, FFT, iRvec):

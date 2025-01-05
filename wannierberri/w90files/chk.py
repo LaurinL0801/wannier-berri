@@ -159,6 +159,20 @@ class CheckPoint:
         assert (spn.NK, spn.NB) == (self.num_kpts, self.num_bands), f"spn file has NK={spn.NK}, NB={spn.NB}, while the checkpoint has NK={self.num_kpts}, NB={self.num_bands}"
         SS_q = np.array([self.wannier_gauge(S, ik, ik) for ik, S in enumerate(spn.data)])
         return 0.5 * (SS_q + SS_q.transpose(0, 2, 1, 3).conj())
+    
+    def get_MOM_q(self, mom):
+        assert (mom.NK, mom.NB) == (
+            self.num_kpts,
+            self.num_bands,
+        ), f"mom file has NK={mom.NK}, NB={mom.NB}, while the checkpoint has NK={self.num_kpts}, NB={self.num_bands}"
+
+        MOM_q = np.array(
+            [
+                self.wannier_gauge(momentum, ik, ik)
+                for ik, momentum in enumerate(mom.data)
+            ]
+        )
+        return MOM_q 
 
     #########
     # Oscar #

@@ -294,6 +294,8 @@ class System_w90(System_R):
         if 'SHA' in self.needed_R_matrices:
             self.set_R_mat('SHA',
                            fourier_q_to_R_loc(chk.get_SHA_q(w90data.shu, w90data.mmn, sum_b=sum_b, phase=expjphase1)))
+        if 'MOM' in self.needed_R_matrices:
+            self.set_R_mat('MOM', fourier_q_to_R_loc(chk.get_MOM_q(w90data.mom)))
 
         del expjphase1, expjphase2
 
